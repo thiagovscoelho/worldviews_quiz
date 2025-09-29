@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>What is your philosophical worldview?</title>
+  <style>
+    :root {
+      --bg: #0f1226;
+      --card: #161a36;
+      --ink: #e8ebff;
+      --muted: #aab0e5;
+      --accent: #7b8cff;
+      --accent-2: #35e0c6;
+      --danger: #ff7b9a;
+      --ok: #8ef0a8;
+      --shadow: 0 20px 50px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--ink);
+      background: radial-gradient(1000px 700px at 10% -10%, #22285e, transparent),
+                  radial-gradient(900px 600px at 110% 20%, #1a234f, transparent),
+                  linear-gradient(180deg, #0a0c1a, var(--bg) 35% 65%, #0a0c1a);
+    }
+    a { color: var(--accent-2); }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 16px 80px;
+    }
+    header.hero {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .title {
+      font-size: clamp(1.8rem, 2vw + 1.2rem, 3rem);
+      line-height: 1.1;
+      margin: 8px 0 10px;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: clamp(1rem, 1.2vw + .6rem, 1.15rem);
+      color: var(--muted);
+      max-width: 60ch;
+      margin: 0 auto;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(16px, 2vw, 28px);
+    }
+    .start {
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+      margin-top: 18px;
+    }
+    .pill {
+      display: inline-block;
+      font-size: .9rem;
+      color: var(--muted);
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+    .btn {
+      appearance: none;
+      border: 0;
+      background: linear-gradient(135deg, var(--accent), #9aa8ff 60%, #baced8);
+      color: #0a0c1a;
+      font-weight: 700;
+      padding: 14px 18px;
+      border-radius: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: transform .12s ease, filter .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.02); }
+    .btn:disabled { filter: grayscale(.6) brightness(.8); cursor: not-allowed; }
+    .btn.secondary {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    @media (min-width: 820px) {
+      .grid-2 { grid-template-columns: 1.2fr .8fr; align-items: start; }
+    }
+
+    /* Quiz */
+    .quiz { display: none; gap: 20px; }
+    .quiz.active { display: grid; }
+    .q-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; margin-bottom: 8px;
+    }
+    .q-idx { font-weight: 700; color: var(--muted); letter-spacing: .08em; font-size: .85rem; }
+    .q-text { font-size: 1.2rem; line-height: 1.35; }
+
+    .progress {
+      height: 10px; border-radius: 999px; overflow: hidden;
+      background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.12);
+    }
+    .bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-2), #8ab4ff); transition: width .35s ease; }
+
+    .options { display: grid; gap: 10px; margin: 16px 0 6px; }
+    .opt {
+      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+      padding: 12px 14px; border-radius: 12px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+    }
+    .opt:hover { background: rgba(255,255,255,.055); }
+    .opt input { appearance: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--muted); display: inline-grid; place-items: center; }
+    .opt input:checked { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(53,224,198,.2) inset; }
+    .opt .label { font-weight: 600; }
+    .opt .hint { color: var(--muted); font-size: .95rem; }
+
+    .navs { display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 8px; }
+
+    /* Sidebar */
+    .aside { position: sticky; top: 16px; }
+    .legend { display: grid; gap: 10px; }
+    .legend .row { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.es { background: #8ab4ff; }
+    .dot.ht { background: #f5d377; }
+    .dot.fi { background: #7ce2c7; }
+    .aside .note { color: var(--muted); font-size: .95rem; }
+
+    /* Results */
+    .results { display: none; }
+    .results.active { display: grid; gap: 18px; }
+    .stat { display: grid; gap: 8px; }
+    .meter { height: 16px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.12); }
+    .meter .fill { height: 100%; width: 0%; transition: width .8s cubic-bezier(.16,1,.3,1); }
+    .meter .fill.es { background: linear-gradient(90deg, #5c8cff, #8ab4ff); }
+    .meter .fill.ht { background: linear-gradient(90deg, #f0c34f, #ffe28a); }
+    .meter .fill.fi { background: linear-gradient(90deg, #35e0c6, #9bf0e1); }
+
+    .winner {
+      padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+    }
+    .winner h3 { margin: 6px 0; }
+    .small { color: var(--muted); font-size: .95rem; }
+    .share { display: flex; gap: 8px; flex-wrap: wrap; }
+    .caps { text-transform: uppercase; font-weight: 800; font-size: .8rem; letter-spacing: .08em; color: var(--muted); }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: .85rem; background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,.12); }
+      /* Start layout centering */
+    .start-wrap { display: flex; justify-content: center; }
+    .start-wrap #start { width: min(720px, 100%); margin-inline: auto; }
+
+    /* CTA spacing */
+    .cta { margin: 18px 0 6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="pill">Personality Quiz</div>
+      <h1 class="title">What is your philosophical worldview?</h1>
+      <p class="subtitle">Based on a blog post by Thiago V. S. Coelho on “three pure worldviews” in philosophical orientation.</p>
+    </header>
+
+    <div class="start-wrap">
+      <section class="card start" id="start">
+        <p class="caps">How it works</p>
+        <ul style="margin:0; padding-left: 18px; text-align: left; max-width: 60ch; color:var(--muted)">
+          <li>24 statements total (8 for each worldview).</li>
+          <li>Choose how strongly you agree with each statement.</li>
+          <li>Your scores are summed for the three worldviews; no right or wrong answers.</li>
+        </ul>
+        <button class="btn" id="beginBtn" aria-describedby="beginHint">Start the quiz</button>
+        <div id="beginHint" class="small">You can use <span class="kbd">←</span> / <span class="kbd">→</span> to navigate.</div>
+      </section>
+    </div>
+
+    <section class="quiz card" id="quiz" aria-live="polite" aria-atomic="true">
+      <div class="q-head">
+        <div class="q-idx" id="qIdx">Question 1 of 24</div>
+        <div class="progress" aria-label="Progress"><div class="bar" id="progressBar"></div></div>
+      </div>
+      <div id="qText" class="q-text">...</div>
+      <div class="options" id="options"></div>
+      <div class="navs">
+        <button class="btn secondary" id="prevBtn" disabled>◀ Previous</button>
+        <div style="display:flex; gap:8px; align-items:center">
+          <button class="btn secondary" id="reviewBtn" title="Review answered questions">Review</button>
+          <button class="btn" id="nextBtn">Next ▶</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="results" id="results">
+      <div class="card winner" id="winnerCard">
+        <h3 id="winnerTitle">Your primary orientation</h3>
+        <p id="winnerText" class="small"></p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-top:6px">Your scores</h3>
+          <div class="stat">
+            <div><strong>Empirical‑Scientific</strong> — <span id="esPct">0%</span> (<span id="esPts">0</span>/24)</div>
+            <div class="meter" aria-hidden="true"><div class="fill es" id="esFill"></div></div>
+          </div>
+          <div class="stat">
+            <div><strong>Historical‑Traditionalist</strong> — <span id="htPct">0%</span> (<span id="htPts">0</span>/24)</div>
+            <div class="meter" aria-hidden="true"><div class="fill ht" id="htFill"></div></div>
+          </div>
+          <div class="stat">
+            <div><strong>Freethinking‑Intuitionist</strong> — <span id="fiPct">0%</span> (<span id="fiPts">0</span>/24)</div>
+            <div class="meter" aria-hidden="true"><div class="fill fi" id="fiFill"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:6px">Share &amp; next steps</h3>
+          <p class="small">Want to keep your result? Copy a link that encodes your scores or print this page.</p>
+          <div class="share">
+            <button class="btn" id="copyLinkBtn">Copy result link</button>
+            <button class="btn secondary" id="printBtn">Print</button>
+            <button class="btn secondary" id="retakeBtn">Retake</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="about">
+          <h3 style="margin-top:6px">Worldview keys &amp; how to read this</h3>
+          <div class="legend">
+            <div class="row"><span class="dot es" aria-hidden="true"></span> <div><strong>Empirical‑Scientific</strong><div class="small">Defer to current science and empirical method.</div></div></div>
+            <div class="row"><span class="dot ht" aria-hidden="true"></span> <div><strong>Historical‑Traditionalist</strong><div class="small">Honor the canon; reinterpret the past with minimal revision.</div></div></div>
+            <div class="row"><span class="dot fi" aria-hidden="true"></span> <div><strong>Freethinking‑Intuitionist</strong><div class="small">Begin from what seems plausible to you; resist authority.</div></div></div>
+          </div>
+          <p class="small" style="margin-top:12px">Higher scores indicate stronger alignment with the corresponding orientation. Many people fall between types. Consider the top two as your current mix.</p>
+          <ul class="small">
+            <li><strong>Empirical‑Scientific:</strong> prioritizes empirical inquiry and aims to integrate philosophy with well‑supported science, revising as little as possible.</li>
+            <li><strong>Historical‑Traditionalist:</strong> treats the philosophical canon as a living interlocutor, seeking continuity with enduring insights.</li>
+            <li><strong>Freethinking‑Intuitionist:</strong> resists external authority in favor of what seems plausible upon reflection, even when it conflicts with science or tradition.</li>
+          </ul>
+          <div class="cta">
+            <a class="btn" href="https://thiagovscoelho.blogspot.com/2025/09/three-pure-worldviews.html" target="_blank" rel="noopener">Read original blog post</a>
+          </div>
+        </div>
+    </section>
+  </div>
+
+  <template id="reviewTpl">
+    <div class="card" style="margin-top:12px">
+      <h3 style="margin-top:6px">Review your answers</h3>
+      <ol id="reviewList" style="display:grid; gap:10px; padding-left: 18px; margin: 12px 0 0"></ol>
+    </div>
+  </template>
+
+  <script>
+    // Worldview metadata
+    const WV = {
+      ES: {
+        name: 'Empirical‑Scientific',
+        key: 'ES',
+        color: '#8ab4ff',
+        desc: 'You lean toward explaining things through empirical method and current scientific practice, minimizing revision to well‑supported theories.'
+      },
+      HT: {
+        name: 'Historical‑Traditionalist',
+        key: 'HT',
+        color: '#f5d377',
+        desc: 'You value continuity with the canon—Plato to Kant—and prefer reinterpretation over rupture.'
+      },
+      FI: {
+        name: 'Freethinking‑Intuitionist',
+        key: 'FI',
+        color: '#7ce2c7',
+        desc: 'You start from what seems plausible to you, ready to challenge both science and tradition when needed.'
+      }
+    };
+
+    // 24 statements, 8 per worldview. Agreeing grants points to the tagged worldview.
+    const questions = [
+      // Empirical‑Scientific (ES)
+      { id: 1,  category: 'ES', text: 'Philosophical theories should never contradict well‑established scientific findings.' },
+      { id: 2,  category: 'ES', text: 'The success of scientific prediction is our best guide to what is real.' },
+      { id: 3,  category: 'ES', text: 'Empirical methods are the ultimate arbiter of philosophical disputes.' },
+      { id: 4,  category: 'ES', text: 'If a view undermines scientific practice, it should be revised or rejected.' },
+      { id: 5,  category: 'ES', text: 'Concepts without testable implications are suspect.' },
+      { id: 6,  category: 'ES', text: 'Advances in instruments and measurement should reshape metaphysics.' },
+      { id: 7,  category: 'ES', text: 'Efficient, spatiotemporal causes typically suffice to explain phenomena.' },
+      { id: 8,  category: 'ES', text: 'When building philosophy, minimize revisions to current science.' },
+      // Historical‑Traditionalist (HT)
+      { id: 9,  category: 'HT', text: 'If great thinkers converged on an idea, it deserves strong deference.' },
+      { id:10,  category: 'HT', text: 'Philosophy should be intelligible across centuries, not only to current scientists.' },
+      { id:11,  category: 'HT', text: 'Reinterpreting Plato, Aristotle, or Kant can reveal enduring truths.' },
+      { id:12,  category: 'HT', text: 'A priori reasoning can outrun empirical discovery.' },
+      { id:13,  category: 'HT', text: 'Continuity with past traditions is a mark of philosophical depth.' },
+      { id:14,  category: 'HT', text: 'Novel views should be reconciled with canonical insights where possible.' },
+      { id:15,  category: 'HT', text: 'Textual exegesis is a central philosophical method.' },
+      { id:16,  category: 'HT', text: 'The canon sets plausible boundaries for philosophical positions.' },
+      // Freethinking‑Intuitionist (FI)
+      { id:17,  category: 'FI', text: 'No authority—scientific or historical—should constrain what seems plausible to me.' },
+      { id:18,  category: 'FI', text: 'Intuitions about consciousness carry genuine evidential weight.' },
+      { id:19,  category: 'FI', text: 'It is acceptable to endorse theories rejected by both science and tradition if they seem right.' },
+      { id:20,  category: 'FI', text: 'First‑person plausibility should guide theory‑choice more than consensus.' },
+      { id:21,  category: 'FI', text: 'Revising basic concepts to fit intuition is sometimes preferable to preserving orthodoxy.' },
+      { id:22,  category: 'FI', text: 'Panpsychism deserves serious consideration.' },
+      { id:23,  category: 'FI', text: 'I prefer starting from scratch rather than harmonizing with existing systems.' },
+      { id:24,  category: 'FI', text: 'My reflective judgments matter more than external validation.' },
+    ];
+
+    // Option presets (Likert, 0-3 points toward the question's category)
+    const CHOICES = [
+      { key: 'sd', label: 'Strongly disagree', value: 0 },
+      { key: 'd',  label: 'Disagree',          value: 1 },
+      { key: 'a',  label: 'Agree',             value: 2 },
+      { key: 'sa', label: 'Strongly agree',    value: 3 },
+    ];
+
+    // State
+    const state = {
+      idx: 0,
+      responses: Array(questions.length).fill(null), // stores 0..3
+    };
+
+    // Elements
+    const startEl = document.getElementById('start');
+    const quizEl = document.getElementById('quiz');
+    const resultsEl = document.getElementById('results');
+    const qIdxEl = document.getElementById('qIdx');
+    const progressBarEl = document.getElementById('progressBar');
+    const qTextEl = document.getElementById('qText');
+    const optionsEl = document.getElementById('options');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const beginBtn = document.getElementById('beginBtn');
+    const reviewBtn = document.getElementById('reviewBtn');
+
+    const esPct = document.getElementById('esPct');
+    const esPts = document.getElementById('esPts');
+    const htPct = document.getElementById('htPct');
+    const htPts = document.getElementById('htPts');
+    const fiPct = document.getElementById('fiPct');
+    const fiPts = document.getElementById('fiPts');
+    const esFill = document.getElementById('esFill');
+    const htFill = document.getElementById('htFill');
+    const fiFill = document.getElementById('fiFill');
+
+    const winnerTitle = document.getElementById('winnerTitle');
+    const winnerText = document.getElementById('winnerText');
+
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
+    const printBtn = document.getElementById('printBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+
+    // Initialization
+    function initFromURL() {
+      const url = new URL(location.href);
+      const es = url.searchParams.get('es');
+      const ht = url.searchParams.get('ht');
+      const fi = url.searchParams.get('fi');
+      if (es && ht && fi) {
+        // Show precomputed results
+        startEl.style.display = 'none';
+        quizEl.classList.remove('active');
+        showResults({ES: +es, HT: +ht, FI: +fi});
+        return true;
+      }
+      return false;
+    }
+
+    function startQuiz() {
+      startEl.style.display = 'none';
+      quizEl.classList.add('active');
+      state.idx = 0;
+      state.responses.fill(null);
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questions[state.idx];
+      qIdxEl.textContent = `Question ${state.idx + 1} of ${questions.length}`;
+      progressBarEl.style.width = `${((state.idx) / questions.length) * 100}%`;
+      qTextEl.textContent = q.text;
+
+      optionsEl.innerHTML = '';
+      const selected = state.responses[state.idx];
+
+      CHOICES.forEach((c, i) => {
+        const id = `q${state.idx}_${c.key}`;
+        const wrapper = document.createElement('label');
+        wrapper.className = 'opt';
+        wrapper.setAttribute('for', id);
+        const left = document.createElement('div');
+        left.className = 'label';
+        left.textContent = c.label;
+        const right = document.createElement('input');
+        right.type = 'radio';
+        right.name = `q${state.idx}`;
+        right.id = id;
+        right.value = c.value;
+        right.checked = selected === c.value;
+        right.addEventListener('change', () => {
+          state.responses[state.idx] = c.value;
+          nextBtn.disabled = false;
+        });
+        wrapper.append(left, right);
+        optionsEl.appendChild(wrapper);
+      });
+
+      prevBtn.disabled = state.idx === 0;
+      nextBtn.textContent = state.idx === questions.length - 1 ? 'See results ▶' : 'Next ▶';
+      nextBtn.disabled = selected === null;
+    }
+
+    function next() {
+      if (state.responses[state.idx] === null) return; // require answer
+      if (state.idx < questions.length - 1) {
+        state.idx++;
+        renderQuestion();
+      } else {
+        finish();
+      }
+    }
+
+    function prev() {
+      if (state.idx > 0) {
+        state.idx--;
+        renderQuestion();
+      }
+    }
+
+    function sumScores() {
+      const totals = { ES: 0, HT: 0, FI: 0 };
+      state.responses.forEach((val, i) => {
+        const q = questions[i];
+        if (val != null) totals[q.category] += Number(val);
+      });
+      return totals;
+    }
+
+    function finish() {
+      // Ensure progress bar fills
+      progressBarEl.style.width = '100%';
+      const totals = sumScores();
+      // Persist scores in URL for share
+      const params = new URLSearchParams({ es: totals.ES, ht: totals.HT, fi: totals.FI });
+      const url = `${location.origin}${location.pathname}?${params.toString()}`;
+      history.replaceState({}, '', url);
+      showResults(totals);
+    }
+
+    function showResults(totals) {
+      quizEl.classList.remove('active');
+      resultsEl.classList.add('active');
+      const maxPerType = 8 * 3; // 8 questions × max 3 points
+
+      const es = totals.ES || 0, ht = totals.HT || 0, fi = totals.FI || 0;
+      const esP = Math.round((es / maxPerType) * 100);
+      const htP = Math.round((ht / maxPerType) * 100);
+      const fiP = Math.round((fi / maxPerType) * 100);
+
+      esPts.textContent = es; esPct.textContent = esP + '%'; esFill.style.width = esP + '%';
+      htPts.textContent = ht; htPct.textContent = htP + '%'; htFill.style.width = htP + '%';
+      fiPts.textContent = fi; fiPct.textContent = fiP + '%'; fiFill.style.width = fiP + '%';
+
+      const ranking = [
+        { key: 'ES', v: esP },
+        { key: 'HT', v: htP },
+        { key: 'FI', v: fiP },
+      ].sort((a,b)=> b.v - a.v);
+
+      const top = ranking[0];
+      const meta = WV[top.key];
+      const tie = ranking.filter(r => r.v === top.v).map(r => WV[r.key].name);
+
+      if (tie.length > 1) {
+        winnerTitle.textContent = `You show a blend: ${tie.join(' + ')}`;
+        winnerText.textContent = 'You balance multiple orientations. Read the descriptions below and consider which resonates most for different topics.';
+      } else {
+        winnerTitle.textContent = `You lean ${meta.name}`;
+        winnerText.textContent = meta.desc;
+      }
+
+      // Smooth scroll into view
+      resultsEl.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Review pane
+    function toggleReview() {
+      const existing = document.getElementById('reviewList');
+      if (existing) { existing.parentElement.parentElement.remove(); return; }
+      const tpl = document.getElementById('reviewTpl');
+      const clone = tpl.content.cloneNode(true);
+      const list = clone.querySelector('#reviewList');
+      questions.forEach((q, i) => {
+        const li = document.createElement('li');
+        const ans = state.responses[i];
+        const label = ans == null ? '<em>unanswered</em>' : CHOICES.find(c => c.value === ans).label;
+        li.innerHTML = `<span class="small" style="color:var(--muted)">#${i+1}</span> ${q.text}<br><span class="small">Answer: <strong>${label}</strong></span>`;
+        li.style.cursor = 'pointer';
+        li.addEventListener('click', () => { state.idx = i; renderQuestion(); window.scrollTo({top: quizEl.offsetTop - 10, behavior: 'smooth'}); });
+        list.appendChild(li);
+      });
+      quizEl.insertAdjacentElement('afterend', clone.firstElementChild);
+    }
+
+    // Copy share link
+    async function copyResultLink() {
+      try {
+        await navigator.clipboard.writeText(location.href);
+        copyLinkBtn.textContent = 'Copied!';
+        setTimeout(()=> copyLinkBtn.textContent = 'Copy result link', 1400);
+      } catch {
+        alert('Copy failed. You can manually copy the URL from the address bar.');
+      }
+    }
+
+    // Event bindings
+    beginBtn.addEventListener('click', startQuiz);
+    nextBtn.addEventListener('click', next);
+    prevBtn.addEventListener('click', prev);
+    reviewBtn.addEventListener('click', toggleReview);
+    copyLinkBtn.addEventListener('click', copyResultLink);
+    printBtn.addEventListener('click', () => window.print());
+    retakeBtn.addEventListener('click', () => { location.href = location.pathname; });
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (!quizEl.classList.contains('active')) return;
+      if (e.key === 'ArrowRight') { nextBtn.click(); }
+      if (e.key === 'ArrowLeft') { prevBtn.click(); }
+    });
+
+    // Boot
+    if (!initFromURL()) {
+      // If URL didn’t have scores, remain on the start screen
+    }
+  </script>
+</body>
+</html>
