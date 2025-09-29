@@ -18,7 +18,8 @@
       --radius: 18px;
     }
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    html { background: #0a0c1a; }           /* fallback color for any overflow */
+    body { min-height: 100%; }
     body {
       margin: 0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
@@ -501,20 +502,34 @@
     // Review pane
     function toggleReview() {
       const existing = document.getElementById('reviewList');
-      if (existing) { existing.parentElement.parentElement.remove(); return; }
+      if (existing) {
+        existing.closest('.card')?.remove();          // <-- only remove the review card
+        reviewBtn.setAttribute('aria-expanded', 'false');
+        reviewBtn.textContent = 'Review';
+        return;
+      }
+
       const tpl = document.getElementById('reviewTpl');
-      const clone = tpl.content.cloneNode(true);
-      const list = clone.querySelector('#reviewList');
+      const reviewCard = tpl.content.firstElementChild.cloneNode(true);
+      const list = reviewCard.querySelector('#reviewList');
+
       questions.forEach((q, i) => {
         const li = document.createElement('li');
         const ans = state.responses[i];
         const label = ans == null ? '<em>unanswered</em>' : CHOICES.find(c => c.value === ans).label;
         li.innerHTML = `<span class="small" style="color:var(--muted)">#${i+1}</span> ${q.text}<br><span class="small">Answer: <strong>${label}</strong></span>`;
         li.style.cursor = 'pointer';
-        li.addEventListener('click', () => { state.idx = i; renderQuestion(); window.scrollTo({top: quizEl.offsetTop - 10, behavior: 'smooth'}); });
+        li.addEventListener('click', () => {
+          state.idx = i;
+          renderQuestion();
+          window.scrollTo({ top: quizEl.offsetTop - 10, behavior: 'smooth' });
+        });
         list.appendChild(li);
       });
-      quizEl.insertAdjacentElement('afterend', clone.firstElementChild);
+
+      quizEl.insertAdjacentElement('afterend', reviewCard);
+      reviewBtn.setAttribute('aria-expanded', 'true');
+      reviewBtn.textContent = 'Hide review';
     }
 
     // Copy share link
